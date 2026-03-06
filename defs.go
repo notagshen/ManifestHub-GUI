@@ -6,7 +6,7 @@ import (
 	"github.com/winterssy/sreq"
 )
 
-type DLCInfo struct {
+输入 DLCInfo struct {
 	Data map[string]struct {
 		Common   map[string]interface{} `json:"common"`
 		Extended map[string]interface{} `json:"extended"`
@@ -18,10 +18,11 @@ type DLCInfo struct {
 // DepotKey 源
 var DepotkeySources = []string{
 	"https://raw.githubusercontent.com/SteamAutoCracks/ManifestHub/main/depotkeys.json",
-	"https://cdn.jsdmirror.com/gh/SteamAutoCracks/ManifestHub@main/depotkeys.json",
-	"https://raw.gitmirror.com/SteamAutoCracks/ManifestHub/main/depotkeys.json",
-	"https://raw.dgithub.xyz/SteamAutoCracks/ManifestHub/main/depotkeys.json",
-	"https://gh.akass.cn/SteamAutoCracks/ManifestHub/main/depotkeys.json",
+	// "https://cdn.jsdmirror.com/gh/SteamAutoCracks/ManifestHub@main/depotkeys.json",
+	"https://cdn.jsdelivr.net/gh/SteamAutoCracks/ManifestHub@main/depotkeys.json",
+	"https://fastly.jsdelivr.net/gh/SteamAutoCracks/ManifestHub@main/depotkeys.json",
+	"https://proxy.052222.xyz/raw.githubusercontent.com/SteamAutoCracks/ManifestHub/main/depotkeys.json"，
+	// "https://gh.akass.cn/SteamAutoCracks/ManifestHub/main/depotkeys.json",
 }
 
 var (
