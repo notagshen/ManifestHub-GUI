@@ -21,7 +21,7 @@ var DepotkeySources = []string{
 	// "https://cdn.jsdmirror.com/gh/SteamAutoCracks/ManifestHub@main/depotkeys.json",
 	"https://cdn.jsdelivr.net/gh/SteamAutoCracks/ManifestHub@main/depotkeys.json",
 	"https://fastly.jsdelivr.net/gh/SteamAutoCracks/ManifestHub@main/depotkeys.json",
-	"https://proxy.052222.xyz/raw.githubusercontent.com/SteamAutoCracks/ManifestHub/main/depotkeys.json"，
+	"https://proxy.052222.xyz/raw.githubusercontent.com/SteamAutoCracks/ManifestHub/main/depotkeys.json",
 	// "https://gh.akass.cn/SteamAutoCracks/ManifestHub/main/depotkeys.json",
 }
 
