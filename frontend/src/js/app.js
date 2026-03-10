@@ -72,9 +72,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (isAdded) {
             actions.innerHTML = `
-                <span class="status-badge">已入�?/span>
+                <span class="status-badge">�����</span>
                 <button class="app-btn app-btn-sm remove-from-library-btn" data-appid="${appId}">
-                    <i class="fa fa-trash me-1"></i>移除
+                    <i class="fa fa-trash me-1"></i>�Ƴ�
                 </button>`;
         } else {
             actions.innerHTML = `
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // 检查Wails函数是否存在并调�?
             if (!window.go?.main?.App?.GetSteamFeatured) {
-                throw new Error('无法连接 Wails 后端, 请重启程�?);
+                throw new Error('Wails backend unavailable. Please restart the app.');
             }
 
             const response = await window.go.main.App.GetSteamFeatured();
@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // 检查Wails搜索函数是否存在
             if (!window.go?.main?.App?.SearchSteamGames) {
-                throw new Error('无法连接 Wails 后端, 请重启程�?);
+                throw new Error('Wails backend unavailable. Please restart the app.');
             }
 
             // 调用后端搜索接口
@@ -360,4 +360,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     loadAddedLibrary();
 });
+
+
 
