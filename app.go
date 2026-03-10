@@ -3,9 +3,10 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
-	"path/filepath"
+	"os"
 	"sync"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -39,7 +40,7 @@ func (a *App) GetSteamFeatured() (string, error) {
 }
 
 // 入库
-func (a *App) AddGameToLibrary(APPID string) (string, error) {
+func (a *App) AddGameToLibrary(APPID string, name string) (string, error) {
 	log.Printf("开始为游戏 %s 入库", APPID)
 
 	var (
@@ -114,19 +115,9 @@ func (a *App) AddGameToLibrary(APPID string) (string, error) {
 	runtime.EventsEmit(a.ctx, "progress", 50)
 
 	// 生成 Lua 文件
-	var path string
-	var err error
-
-	if CONFIG_READ_STEAM_PATH {
-		path, err = GetSteamGamePath()
-		path = filepath.Join(path, APPID+".lua")
-	} else {
-		path = filepath.Join(CONFIG_DOWNLOAD_PATH, APPID+".lua")
-	}
+	path, err := buildLuaPath(APPID)
 	if err != nil {
-		log.Printf("获取 Steam 游戏路径失败: %v, 将使用配置的下载路径", err)
-		path = filepath.Join(CONFIG_DOWNLOAD_PATH, APPID+".lua")
-		err = nil
+		return "", LogAndError("构建 Lua 路径失败: %v", err)
 	}
 
 	runtime.EventsEmit(a.ctx, "progress", 70)
@@ -136,12 +127,87 @@ func (a *App) AddGameToLibrary(APPID string) (string, error) {
 		return "", LogAndError("生成 Lua 文件失败: %v", err)
 	}
 
+	outputPath, err := resolveOutputPath(path)
+	if err != nil {
+		log.Printf("解析 Lua 路径失败: %v", err)
+	} else {
+		if err := upsertLibraryRecord(APPID, name, outputPath); err != nil {
+			log.Printf("写入入库记录失败: %v", err)
+		}
+	}
+
 	runtime.EventsEmit(a.ctx, "progress", 100)
 
 	if isMissing {
 		return fmt.Sprintf("游戏 %s 已成功添加到库中, 但是缺少部分 DepotKey (可能导致空包)", APPID), nil
 	}
 	return fmt.Sprintf("游戏 %s 已成功添加到库中", APPID), nil
+}
+
+// 获取入库记录
+func (a *App) GetAddedLibraries() (string, error) {
+	libraryMu.Lock()
+	records, err := readLibraryRecordMap()
+	libraryMu.Unlock()
+	if err != nil {
+		return "", LogAndError("获取入库记录失败: %v", err)
+	}
+
+	list := make([]LibraryRecord, 0, len(records))
+	for _, item := range records {
+		list = append(list, item)
+	}
+	data, err := json.Marshal(list)
+	if err != nil {
+		return "", LogAndError("序列化入库记录失败: %v", err)
+	}
+	return string(data), nil
+}
+
+// 移除入库
+func (a *App) RemoveGameFromLibrary(APPID string) (string, error) {
+	var record LibraryRecord
+	var exists bool
+
+	libraryMu.Lock()
+	records, err := readLibraryRecordMap()
+	if err != nil {
+		libraryMu.Unlock()
+		return "", LogAndError("读取入库记录失败: %v", err)
+	}
+	record, exists = records[APPID]
+	libraryMu.Unlock()
+
+	var luaPath string
+	if exists && record.LuaPath != "" {
+		luaPath = record.LuaPath
+	} else {
+		path, err := buildLuaPath(APPID)
+		if err != nil {
+			return "", LogAndError("构建 Lua 路径失败: %v", err)
+		}
+		luaPath, err = resolveOutputPath(path)
+		if err != nil {
+			return "", LogAndError("解析 Lua 路径失败: %v", err)
+		}
+	}
+
+	var fileRemoved bool
+	if _, err := os.Stat(luaPath); err == nil {
+		if err := os.Remove(luaPath); err != nil {
+			return "", LogAndError("删除 Lua 文件失败: %v", err)
+		}
+		fileRemoved = true
+	}
+
+	if err := deleteLibraryRecord(APPID); err != nil {
+		return "", LogAndError("更新入库记录失败: %v", err)
+	}
+
+	if fileRemoved {
+		return fmt.Sprintf("已移除入库: %s", APPID), nil
+	}
+	return fmt.Sprintf("入库记录已移除，但未找到 Lua 文件: %s", APPID), nil
 }
 
 // 游戏搜索

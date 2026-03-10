@@ -29,6 +29,10 @@
           <i class="fas fa-gamepad"></i>
           <span class="nav-text">游戏入库</span>
         </a>
+        <a href="#library" class="nav-item" data-page="library">
+          <i class="fa fa-archive"></i>
+          <span class="nav-text">入库记录</span>
+        </a>
         <!-- <a href="#toolbox" class="nav-item" data-page="toolbox">
           <i class="fa fa-tools"></i>
           <span class="nav-text">其他工具</span>
@@ -78,6 +82,16 @@
           <div class="card">
             <h2>个人资料</h2>
             <p>管理您的个人信息和账户设置。</p>
+          </div>
+        </div>
+
+        <div class="page page-none" id="library-page">
+          <div class="card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h2 class="mb-0">入库记录</h2>
+              <button class="app-btn app-btn-sm" id="refresh-library"><i class="fa fa-rotate me-1"></i>刷新</button>
+            </div>
+            <div id="library-list"></div>
           </div>
         </div>
 
