@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchBtn = document.getElementById('home-steam-search-btn');
     const featuredGamesContainer = document.getElementById('featured-games');
     const errorDiv = document.getElementById('featured-error');
+    const homePage = document.getElementById('home-page');
     let gamesLoaded = false; // 标记游戏是否已加载
 
     // 从Wails后端获取Steam特色游戏列表
@@ -180,6 +181,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    function refreshGameList() {
+        const searchTerm = searchInput.value.trim();
+        if (searchTerm) {
+            searchGames(searchTerm);
+            return;
+        }
+        loadFeaturedGames();
+    }
+
     // 搜索按钮事件
     searchBtn.addEventListener('click', function () {
         const searchTerm = searchInput.value.trim();
@@ -202,6 +212,13 @@ document.addEventListener('DOMContentLoaded', function () {
     if (document.getElementById('home-page') && !document.getElementById('home-page').classList.contains('d-none') && !gamesLoaded) {
         loadFeaturedGames();
     }
+
+    document.addEventListener('steam-region-updated', function () {
+        gamesLoaded = false;
+        if (homePage && !homePage.classList.contains('page-none')) {
+            refreshGameList();
+        }
+    });
 
     // 监听页面切换事件，仅在首次进入home页面时加载游戏
     document.querySelectorAll('.nav-item').forEach(navItem => {

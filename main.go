@@ -95,8 +95,8 @@ func main() {
 
 	// 检查配置文件
 	if !CheckConfigIntegrity() {
-		log.Println("配置文件不完整, 将重置配置文件")
-		ResetConfig()
+		log.Println("配置文件不完整, 将补全缺失配置项")
+		RepairConfig()
 	}
 
 	// 创建应用程序实例
