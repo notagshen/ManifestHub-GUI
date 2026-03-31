@@ -1,4 +1,4 @@
-/* app.go */
+﻿/* app.go */
 package main
 
 import (
@@ -167,7 +167,7 @@ func (a *App) SearchSteamGames(searchTerm string) (string, error) {
 		"User-Agent": []string{"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"},
 	}
 
-	body, err := Client.Get("https://store.steampowered.com/api/storesearch/",
+	body, err := Client.Get("https://proxy.052222.xyz/store.steampowered.com/api/storesearch/",
 		sreq.WithQuery(params),
 		sreq.WithHeaders(headers),
 	).Text()
