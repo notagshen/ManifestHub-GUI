@@ -65,7 +65,7 @@
           <div class="home-search" autocomplete="off">
             <div class="input-wrapper">
               <input id="home-steam-search" type="text" class="form-control" placeholder=" ">
-              <label for="home-steam-search" class="custom-placeholder">搜索游戏名 (仅国区游戏)</label>
+              <label for="home-steam-search" class="custom-placeholder">搜索游戏名 (按设置中的商店区域)</label>
             </div>
             <button id="home-steam-search-btn" class="app-btn">搜索</button>
           </div>
@@ -304,6 +304,17 @@
                 <select class="form-select" id="library-choice">
                   <option value="Sudama">Sudama (首选推荐)</option>
                   <option value="SAC">SAC</option>
+                </select>
+              </div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-md-6">
+                <label class="h5 mb-0" for="steam-region">Steam 商店区域</label>
+                <p class="text-warning mb-1">影响首页热门和游戏搜索结果</p>
+                <select class="form-select" id="steam-region">
+                  <option value="CN">CN 中国区</option>
+                  <option value="US">US 美区</option>
+                  <option value="HK">HK 港区</option>
                 </select>
               </div>
             </div>

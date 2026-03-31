@@ -2,6 +2,8 @@
 package main
 
 import (
+	"strings"
+
 	"github.com/spf13/viper"
 	"github.com/winterssy/sreq"
 )
@@ -19,10 +21,11 @@ type DLCInfo struct {
 var DepotkeySources = []string{
 	"https://raw.githubusercontent.com/SteamAutoCracks/ManifestHub/main/depotkeys.json",
 	// "https://cdn.jsdmirror.com/gh/SteamAutoCracks/ManifestHub@main/depotkeys.json",
+	// "https://raw.gitmirror.com/SteamAutoCracks/ManifestHub/main/depotkeys.json",
+	// "https://raw.dgithub.xyz/SteamAutoCracks/ManifestHub/main/depotkeys.json",
+	// "https://gh.akass.cn/SteamAutoCracks/ManifestHub/main/depotkeys.json",
 	"https://cdn.jsdelivr.net/gh/SteamAutoCracks/ManifestHub@main/depotkeys.json",
 	"https://fastly.jsdelivr.net/gh/SteamAutoCracks/ManifestHub@main/depotkeys.json",
-	"https://proxy.052222.xyz/raw.githubusercontent.com/SteamAutoCracks/ManifestHub/main/depotkeys.json",
-	// "https://gh.akass.cn/SteamAutoCracks/ManifestHub/main/depotkeys.json",
 }
 
 var (
@@ -32,6 +35,7 @@ var (
 	CONFIG_SET_MANIFESTID  bool   // 设置固定清单
 	CONFIG_GITHUB_TOKEN    string // GitHub 令牌
 	CONFIG_LIBRARY_CHOICE  string // 库选择
+	CONFIG_STEAM_REGION    string // Steam 商店区域
 )
 
 func initGlobalConfig() {
@@ -42,6 +46,17 @@ func initGlobalConfig() {
 	CONFIG_SET_MANIFESTID = viper.GetBool("set_manifestid")
 	CONFIG_GITHUB_TOKEN = viper.GetString("github_token")
 	CONFIG_LIBRARY_CHOICE = viper.GetString("library_choice")
+	CONFIG_STEAM_REGION = normalizeSteamRegion(viper.GetString("steam_region"))
+}
+
+func normalizeSteamRegion(region string) string {
+	normalized := strings.ToUpper(strings.TrimSpace(region))
+	switch normalized {
+	case "CN", "US", "HK":
+		return normalized
+	default:
+		return "CN"
+	}
 }
 
 // %AppData% 路径
