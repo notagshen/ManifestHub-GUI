@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -17,6 +18,7 @@ type Config struct {
 	SetManifestid bool   `json:"set_manifestid"`  // 设置固定清单
 	GithubToken   string `json:"github_token"`    // GitHub 令牌
 	LibraryChoice string `json:"library_choice"`  // 库选择
+	SteamRegion   string `json:"steam_region"`    // Steam 商店区域
 }
 
 var DefaultConfig = Config{
@@ -26,6 +28,7 @@ var DefaultConfig = Config{
 	SetManifestid: false,
 	GithubToken:   "",
 	LibraryChoice: "Sudama",
+	SteamRegion:   "CN",
 }
 
 // 创建配置文件
@@ -51,6 +54,7 @@ func CreateConfig() {
 		viper.SetDefault("set_manifestid", DefaultConfig.SetManifestid)
 		viper.SetDefault("github_token", DefaultConfig.GithubToken)
 		viper.SetDefault("library_choice", DefaultConfig.LibraryChoice)
+		viper.SetDefault("steam_region", DefaultConfig.SteamRegion)
 
 		// 写入配置文件（生成 JSON）
 		if err := viper.WriteConfig(); err != nil {
@@ -67,6 +71,14 @@ func CreateConfig() {
 
 // 修改配置文件
 func ModifyConfig(item string, value interface{}) error {
+	if item == "steam_region" {
+		region, ok := value.(string)
+		if !ok {
+			return LogAndError("steam_region 配置值类型错误: %T", value)
+		}
+		value = normalizeSteamRegion(region)
+	}
+
 	// Viper 设置项值
 	viper.Set(item, value)
 
@@ -90,15 +102,51 @@ func CheckConfigIntegrity() bool {
 		"set_manifestid",
 		"github_token",
 		"library_choice",
+		"steam_region",
 	}
 
 	for _, key := range requiredKeys {
-		if !viper.IsSet(key) {
+		if !viper.InConfig(key) {
 			log.Printf("配置项缺失: %s", key)
 			return false
 		}
 	}
 	return true
+}
+
+func RepairConfig() {
+	defaults := map[string]interface{}{
+		"read_steam_path": DefaultConfig.ReadSteamPath,
+		"download_path":   DefaultConfig.DownloadPath,
+		"add_dlc":         DefaultConfig.AddDLC,
+		"set_manifestid":  DefaultConfig.SetManifestid,
+		"github_token":    DefaultConfig.GithubToken,
+		"library_choice":  DefaultConfig.LibraryChoice,
+		"steam_region":    DefaultConfig.SteamRegion,
+	}
+
+	missingKeys := make([]string, 0)
+	for key, value := range defaults {
+		if viper.InConfig(key) {
+			continue
+		}
+		viper.Set(key, value)
+		missingKeys = append(missingKeys, key)
+	}
+
+	if len(missingKeys) == 0 {
+		return
+	}
+
+	if err := viper.WriteConfig(); err != nil {
+		if err := viper.SafeWriteConfigAs(viper.ConfigFileUsed()); err != nil {
+			log.Printf("补全配置文件失败: %v", err)
+			return
+		}
+	}
+
+	initGlobalConfig()
+	log.Printf("已补全缺失配置项: %s", strings.Join(missingKeys, ", "))
 }
 
 // 重置配置文件
@@ -109,6 +157,7 @@ func ResetConfig() {
 	viper.SetDefault("set_manifestid", DefaultConfig.SetManifestid)
 	viper.SetDefault("github_token", DefaultConfig.GithubToken)
 	viper.SetDefault("library_choice", DefaultConfig.LibraryChoice)
+	viper.SetDefault("steam_region", DefaultConfig.SteamRegion)
 
 	// 写入配置文件
 	if err := viper.WriteConfig(); err != nil {
@@ -117,5 +166,6 @@ func ResetConfig() {
 			log.Printf("保存配置文件失败: %v", err)
 		}
 	}
+	initGlobalConfig()
 	log.Printf("默认配置已生成/重置: %s", viper.ConfigFileUsed())
 }

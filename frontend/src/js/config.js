@@ -18,6 +18,7 @@ async function loadConfig() {
         document.getElementById('set-manifest').value = config.set_manifestid === true ? 'true' : 'false';
         document.getElementById('github-token').value = config.github_token || '';
         document.getElementById('library-choice').value = config.library_choice || 'Sudama';
+        document.getElementById('steam-region').value = config.steam_region || 'CN';
     } catch (error) {
         console.error('加载配置失败:', error.toString());
         showToasts('加载配置失败: ' + error.toString(), "error");
@@ -50,7 +51,8 @@ async function saveConfig() {
             add_dlc: document.getElementById('add-dlc').value === 'true',
             set_manifestid: document.getElementById('set-manifest').value === 'true',
             github_token: document.getElementById('github-token').value.trim(),
-            library_choice: document.getElementById('library-choice').value
+            library_choice: document.getElementById('library-choice').value,
+            steam_region: document.getElementById('steam-region').value
         };
 
         console.log('要保存的配置:', config); // 调试信息
@@ -85,6 +87,9 @@ async function saveConfig() {
             
             // 重新加载配置
             await loadConfig();
+            document.dispatchEvent(new CustomEvent('steam-region-updated', {
+                detail: { steamRegion: config.steam_region }
+            }));
         } else {
             showToasts('部分配置保存失败, 请重试', "error");
         }

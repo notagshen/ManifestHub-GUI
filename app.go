@@ -1,4 +1,4 @@
-/* app.go */
+﻿/* app.go */
 package main
 
 import (
@@ -30,7 +30,18 @@ func (a *App) startup(ctx context.Context) {
 
 // 获取热门 Steam 游戏列表
 func (a *App) GetSteamFeatured() (string, error) {
-	body, err := Client.Get("https://store.steampowered.com/api/featured/?l=schinese&cc=CN").
+	params := sreq.Params{
+		"l":  "schinese",
+		"cc": normalizeSteamRegion(CONFIG_STEAM_REGION),
+	}
+	headers := sreq.Headers{
+		"User-Agent": []string{"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"},
+	}
+
+	body, err := Client.Get("https://store.steampowered.com/api/featured/",
+		sreq.WithQuery(params),
+		sreq.WithHeaders(headers),
+	).
 		Text()
 	if err != nil {
 		return "", LogAndError("获取 Steam 热门游戏列表失败: %v", err)
@@ -150,13 +161,13 @@ func (a *App) SearchSteamGames(searchTerm string) (string, error) {
 	params := sreq.Params{
 		"term": searchTerm,
 		"l":    "schinese",
-		"cc":   "CN",
+		"cc":   normalizeSteamRegion(CONFIG_STEAM_REGION),
 	}
 	headers := sreq.Headers{
 		"User-Agent": []string{"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"},
 	}
 
-	body, err := Client.Get("https://store.steampowered.com/api/storesearch/",
+	body, err := Client.Get("https://proxy.052222.xyz/store.steampowered.com/api/storesearch/",
 		sreq.WithQuery(params),
 		sreq.WithHeaders(headers),
 	).Text()
@@ -177,6 +188,7 @@ func (a *App) GetConfig() (Config, error) {
 		SetManifestid: CONFIG_SET_MANIFESTID,
 		GithubToken:   CONFIG_GITHUB_TOKEN,
 		LibraryChoice: CONFIG_LIBRARY_CHOICE,
+		SteamRegion:   normalizeSteamRegion(CONFIG_STEAM_REGION),
 	}, nil
 }
 
